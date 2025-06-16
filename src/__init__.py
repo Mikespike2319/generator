@@ -1,0 +1,3 @@
+"""
+Hospital Report Generator package.
+""" 

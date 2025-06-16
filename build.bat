@@ -1,25 +1,35 @@
 @echo off
-echo ================================================
-echo Hospital Report Generator - Build Script
-echo ================================================
-echo.
+echo Building Hospital Report Generator...
 
-echo Installing required packages...
-pip install pandas openpyxl pyinstaller
-echo.
+REM Create virtual environment if it doesn't exist
+if not exist "venv" (
+    echo Creating virtual environment...
+    python -m venv venv
+)
 
-echo Building executable...
-pyinstaller --onefile --windowed --name "HospitalReportGenerator" hospital_report_generator.py
-echo.
+REM Activate virtual environment
+call venv\Scripts\activate.bat
 
-echo Cleaning up build files...
-rmdir /s /q build
-del HospitalReportGenerator.spec
-echo.
+REM Install requirements
+echo Installing requirements...
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
 
-echo ================================================
-echo Build Complete!
-echo ================================================
-echo Your executable is located at: dist\HospitalReportGenerator.exe
-echo.
+REM Create executable
+echo Creating executable...
+pyinstaller --noconfirm --onefile --windowed ^
+    --add-data "src;src" ^
+    --icon "src/assets/icon.ico" ^
+    --name "HospitalReportGenerator" ^
+    src/main.py
+
+REM Create output directory
+if not exist "dist\HospitalReportGenerator" mkdir "dist\HospitalReportGenerator"
+
+REM Copy additional files
+echo Copying additional files...
+copy "README.md" "dist\HospitalReportGenerator\"
+copy "LICENSE" "dist\HospitalReportGenerator\"
+
+echo Build complete! The executable is in the dist folder.
 pause 
