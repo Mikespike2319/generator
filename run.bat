@@ -1,5 +1,5 @@
 @echo off
-echo Starting Hospital Report Generator...
+echo Setting up Hospital Report Generator...
 
 REM Check if Python is installed
 python --version >nul 2>&1
@@ -10,22 +10,23 @@ if errorlevel 1 (
 )
 
 REM Check if virtual environment exists
-if not exist "venv" (
+if not exist venv (
     echo Creating virtual environment...
     python -m venv venv
 )
 
 REM Activate virtual environment
-call venv\Scripts\activate.bat
+call venv\Scripts\activate
 
-REM Install requirements if needed
-if not exist "venv\Lib\site-packages\customtkinter" (
-    echo Installing requirements...
-    pip install -r requirements.txt
-)
+REM Install package in development mode
+echo Installing dependencies...
+pip install -e .
 
 REM Run the application
-python src/main.py
+echo Starting Hospital Report Generator...
+python -m hospital_report_generator
 
 REM Deactivate virtual environment
-call venv\Scripts\deactivate.bat 
+call venv\Scripts\deactivate
+
+pause 
