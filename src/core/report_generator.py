@@ -1,8 +1,10 @@
 import pandas as pd
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from datetime import datetime
 import logging
 from jinja2 import Template
+import pdfkit
+import io
 
 class ReportGenerator:
     def __init__(self):
@@ -19,30 +21,102 @@ class ReportGenerator:
             'custom': Template(self._get_custom_template())
         }
     
-    def generate_report(self, data: pd.DataFrame, report_type: str) -> str:
+    def generate_report(self, data: pd.DataFrame, report_type: str, output_format: str = 'html') -> str:
         """
-        Generate an HTML report based on the data and report type.
+        Generate a report based on the data and report type.
         
         Args:
             data (pd.DataFrame): The data to generate the report from
             report_type (str): The type of report to generate
+            output_format (str): The output format ('html', 'pdf', or 'excel')
             
         Returns:
-            str: The generated HTML report
+            str: The generated report content or file path
             
         Raises:
-            ValueError: If the report type is invalid
+            ValueError: If the report type or output format is invalid
         """
         if report_type not in self._templates:
             raise ValueError(f"Invalid report type: {report_type}")
             
+        if output_format not in ['html', 'pdf', 'excel']:
+            raise ValueError(f"Invalid output format: {output_format}")
+            
         try:
             template = self._templates[report_type]
             context = self._prepare_context(data, report_type)
-            return template.render(**context)
+            html_content = template.render(**context)
+            
+            if output_format == 'html':
+                return html_content
+            elif output_format == 'pdf':
+                return self._convert_to_pdf(html_content)
+            elif output_format == 'excel':
+                return self._convert_to_excel(data, report_type)
+                
         except Exception as e:
             self._logger.error(f"Failed to generate {report_type} report: {str(e)}")
             raise
+    
+    def _convert_to_pdf(self, html_content: str) -> str:
+        """Convert HTML content to PDF."""
+        try:
+            # Create a temporary HTML file
+            temp_html = f"temp_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
+            with open(temp_html, 'w', encoding='utf-8') as f:
+                f.write(html_content)
+            
+            # Convert to PDF
+            pdf_path = temp_html.replace('.html', '.pdf')
+            pdfkit.from_file(temp_html, pdf_path)
+            
+            # Clean up temporary HTML file
+            import os
+            os.remove(temp_html)
+            
+            return pdf_path
+        except Exception as e:
+            self._logger.error(f"Failed to convert to PDF: {str(e)}")
+            raise
+    
+    def _convert_to_excel(self, data: pd.DataFrame, report_type: str) -> str:
+        """Convert data to Excel format."""
+        try:
+            # Create Excel writer
+            excel_path = f"hospital_report_{report_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+            
+            with pd.ExcelWriter(excel_path, engine='openpyxl') as writer:
+                # Write main data
+                data.to_excel(writer, sheet_name='Data', index=False)
+                
+                # Add summary sheet
+                summary_data = self._prepare_context(data, report_type)
+                summary_df = pd.DataFrame([summary_data])
+                summary_df.to_excel(writer, sheet_name='Summary', index=False)
+                
+                # Add charts if needed
+                if report_type in ['demographics', 'department', 'monthly']:
+                    self._add_excel_charts(writer, data, report_type)
+            
+            return excel_path
+        except Exception as e:
+            self._logger.error(f"Failed to convert to Excel: {str(e)}")
+            raise
+    
+    def _add_excel_charts(self, writer: pd.ExcelWriter, data: pd.DataFrame, report_type: str) -> None:
+        """Add charts to Excel file."""
+        workbook = writer.book
+        worksheet = workbook.create_sheet('Charts')
+        
+        if report_type == 'demographics':
+            # Add demographics charts
+            pass
+        elif report_type == 'department':
+            # Add department charts
+            pass
+        elif report_type == 'monthly':
+            # Add monthly charts
+            pass
     
     def _prepare_context(self, data: pd.DataFrame, report_type: str) -> Dict[str, Any]:
         """Prepare the context data for the template."""

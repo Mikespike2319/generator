@@ -18,8 +18,12 @@ if not exist venv (
 REM Activate virtual environment
 call venv\Scripts\activate
 
-REM Install package in development mode
-echo Installing dependencies...
+REM Install requirements first
+echo Installing requirements...
+pip install -r requirements.txt
+
+REM Install the package in development mode
+echo Installing package in development mode...
 pip install -e .
 
 REM Run the application
