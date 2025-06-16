@@ -25,9 +25,22 @@ class MainWindow(ctk.CTk):
         # Initialize data
         self.data_processor = DataProcessor()
         self.report_generator = ReportGenerator()
+        self.selected_file = None
         
         # Create the UI
         self.create_widgets()
+        
+        # Center the window on screen
+        self.center_window()
+        
+    def center_window(self):
+        """Center the window on the screen."""
+        self.update_idletasks()
+        width = self.winfo_width()
+        height = self.winfo_height()
+        x = (self.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.winfo_screenheight() // 2) - (height // 2)
+        self.geometry(f'{width}x{height}+{x}+{y}')
         
     def create_widgets(self):
         # Create main container
@@ -203,75 +216,71 @@ class MainWindow(ctk.CTk):
         self.preview_text.pack(padx=10, pady=10, fill="both", expand=True)
         
     def select_file(self):
+        """Handle file selection."""
         file_path = filedialog.askopenfilename(
             title="Select Excel File",
-            filetypes=[("Excel files", "*.xlsx *.xls"), ("All files", "*.*")]
+            filetypes=[("Excel files", "*.xlsx *.xls")]
         )
         
         if file_path:
+            self.selected_file = file_path
+            self.file_label.configure(text=os.path.basename(file_path))
+            
             try:
+                # Load data from the selected file
                 self.data_processor.load_data(file_path, sheet_name=self.sheet_var.get())
-                self.file_label.configure(text=f"File: {os.path.basename(file_path)}")
                 self.update_preview()
-                messagebox.showinfo("Success", "Excel file loaded successfully!")
+                messagebox.showinfo("Success", "File loaded successfully!")
             except Exception as e:
-                messagebox.showerror("Error", f"Failed to load Excel file:\n{str(e)}")
+                messagebox.showerror("Error", f"Failed to load file: {str(e)}")
+                self.selected_file = None
+                self.file_label.configure(text="No file selected")
     
     def update_preview(self):
         """Update the preview panel with data summary."""
-        if self.data_processor.has_data():
+        if self.data_processor.is_data_loaded():
             data = self.data_processor.get_data()
+            summary = self.data_processor.get_summary()
+            
             preview_text = f"Data Summary:\n\n"
-            preview_text += f"Total Rows: {len(data)}\n"
-            preview_text += f"Columns: {', '.join(data.columns)}\n"
-            preview_text += f"\nFirst few rows:\n{data.head().to_string()}"
+            preview_text += f"Total Records: {summary['total_records']}\n"
+            preview_text += f"Date Range: {summary['date_range']}\n"
+            preview_text += f"Columns: {', '.join(summary['columns'])}\n"
+            
             self.preview_text.delete("1.0", "end")
             self.preview_text.insert("1.0", preview_text)
     
     def generate_report(self):
-        if not self.data_processor.has_data():
-            messagebox.showerror("Error", "Please select an Excel file first!")
+        """Generate the report based on selected options."""
+        if not self.selected_file:
+            messagebox.showwarning("Warning", "Please select an Excel file first!")
             return
-            
+        
         try:
+            # Get report options
             report_type = self.report_type.get()
-            output_format = self.output_var.get().lower()
             date_range = self.date_range_var.get()
+            output_format = self.output_var.get().lower()
             
-            # Get data and apply date range filter if needed
-            data = self.data_processor.get_data()
-            if date_range != "All Time":
-                # Apply date filtering logic here
-                pass
-            
-            report_content = self.report_generator.generate_report(
-                data,
+            # Generate the report
+            output_path = self.report_generator.generate_report(
+                self.data_processor,
                 report_type,
-                output_format=output_format
+                date_range,
+                output_format
             )
             
-            # Save file based on output format
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            if output_format == 'html':
-                output_file = f"hospital_report_{report_type}_{timestamp}.html"
-                with open(output_file, 'w', encoding='utf-8') as f:
-                    f.write(report_content)
-                webbrowser.open(f'file://{os.path.abspath(output_file)}')
-            elif output_format == 'pdf':
-                output_file = f"hospital_report_{report_type}_{timestamp}.pdf"
-                # Add PDF generation logic
-                pass
-            elif output_format == 'excel':
-                output_file = f"hospital_report_{report_type}_{timestamp}.xlsx"
-                # Add Excel generation logic
-                pass
-            
-            messagebox.showinfo("Success", f"Report generated successfully!\nFile: {output_file}")
-            
+            if output_path:
+                messagebox.showinfo("Success", f"Report generated successfully!\nSaved to: {output_path}")
+                
+                # Open the report if it's HTML
+                if output_format == "html":
+                    webbrowser.open(output_path)
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to generate report:\n{str(e)}")
+            messagebox.showerror("Error", f"Failed to generate report: {str(e)}")
 
 def main():
+    """Main entry point for the application."""
     app = MainWindow()
     app.mainloop()
 

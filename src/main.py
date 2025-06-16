@@ -2,7 +2,8 @@ import sys
 import logging
 from pathlib import Path
 import os
-from hospital_report_generator.ui.main_window import MainWindow
+import customtkinter as ctk
+from ui.main_window import MainWindow
 
 def setup_logging():
     """Set up logging configuration."""
@@ -32,7 +33,12 @@ def main():
         else:
             # Running as script
             os.chdir(os.path.dirname(os.path.abspath(__file__)))
-            
+        
+        # Initialize customtkinter
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("blue")
+        
+        # Create and run the main window
         app = MainWindow()
         app.mainloop()
     except Exception as e:

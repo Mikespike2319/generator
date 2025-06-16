@@ -1,7 +1,6 @@
 @echo off
-echo Setting up Hospital Report Generator...
+echo Checking Python installation...
 
-REM Check if Python is installed
 python --version >nul 2>&1
 if errorlevel 1 (
     echo Python is not installed! Please install Python 3.8 or higher.
@@ -9,28 +8,25 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM Check if virtual environment exists
+echo Creating virtual environment...
 if not exist venv (
-    echo Creating virtual environment...
     python -m venv venv
 )
 
-REM Activate virtual environment
-call venv\Scripts\activate
+echo Activating virtual environment...
+call venv\Scripts\activate.bat
 
-REM Install requirements first
 echo Installing requirements...
 pip install -r requirements.txt
 
-REM Install the package in development mode
 echo Installing package in development mode...
 pip install -e .
 
-REM Run the application
-echo Starting Hospital Report Generator...
-python -m hospital_report_generator
+echo Running application...
+cd src
+python main.py
 
-REM Deactivate virtual environment
-call venv\Scripts\deactivate
+echo Deactivating virtual environment...
+call ..\venv\Scripts\deactivate.bat
 
 pause 
