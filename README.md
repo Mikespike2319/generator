@@ -164,7 +164,31 @@ For Windows-specific issues:
 
 MIT License - Free for personal and commercial use on Windows systems.
 
-## Building Standalone Executable
+## 🚀 Quick Start
+
+### For End Users (No Python Required)
+1. Download the `ExcelReportGenerator.exe` from the `release` directory
+2. Double-click to run the application
+3. If you get a permission error, right-click the executable and select "Run as administrator"
+
+### For Developers
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Mikespike2319/generator.git
+   cd generator
+   ```
+
+2. Install the requirements:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Run the application:
+   ```bash
+   python main.py
+   ```
+
+## 🛠️ Building the Standalone Executable
 
 To create a standalone executable that can run without Python installed:
 
@@ -178,12 +202,16 @@ To create a standalone executable that can run without Python installed:
    python build.py
    ```
 
-3. The standalone executable will be created in the `dist` folder as `ExcelReportGenerator.exe`
+3. The standalone executable will be created in the `release` folder as `ExcelReportGenerator.exe`
 
 ### Distribution
 
 To distribute the application:
-1. Copy the `ExcelReportGenerator.exe` from the `dist` folder
+1. Copy the `ExcelReportGenerator.exe` from the `release` folder
 2. Share this single file with users - they can run it directly without installing Python or any dependencies
 
-Note: The first run might take a few seconds as the executable extracts its components. 
+Note: 
+- The first run might take a few seconds as the executable extracts its components
+- The executable is large because it includes Python and all dependencies
+- No installation is required - users can run it from any location
+- If users get a permission error, they should right-click and select "Run as administrator" 
