@@ -6,7 +6,10 @@ A professional Windows application for converting Excel files into beautiful HTM
 
 ### Quick Start (Recommended)
 1. **Download** the repository as a ZIP file from GitHub
-2. **Extract** to your desired location (e.g., `C:\ExcelReportGenerator\`)
+2. **Extract** to a USER directory (IMPORTANT):
+   - ✅ Desktop: `C:\Users\YourName\Desktop\ExcelReportGenerator\`
+   - ✅ Documents: `C:\Users\YourName\Documents\ExcelReportGenerator\`
+   - ❌ NOT in: `C:\Windows\System32\` or `C:\Program Files\`
 3. **Double-click** `run.bat` to automatically install and run
 
 The batch file will:
@@ -112,10 +115,12 @@ ExcelReportGenerator/
 - ✅ Check "Add Python to PATH" during installation
 - Restart Command Prompt after installation
 
-**"Failed to install dependencies"**
+**"Failed to install dependencies" or "Access is denied"**
+- ⚠️ **Most common cause**: Files extracted to restricted directory
+- ✅ **Solution**: Extract to Desktop or Documents folder (not C:\Windows\System32\)
+- Run `troubleshoot.bat` for detailed diagnosis
 - Ensure internet connection is active
-- Try running as Administrator
-- Update pip: `python -m pip install --upgrade pip`
+- Temporarily disable antivirus real-time scanning
 
 **"Excel file won't load"**
 - Verify file format is .xlsx or .xls
@@ -157,4 +162,28 @@ For Windows-specific issues:
 
 ## 📝 License
 
-MIT License - Free for personal and commercial use on Windows systems. 
+MIT License - Free for personal and commercial use on Windows systems.
+
+## Building Standalone Executable
+
+To create a standalone executable that can run without Python installed:
+
+1. Install the build requirements:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Run the build script:
+   ```bash
+   python build.py
+   ```
+
+3. The standalone executable will be created in the `dist` folder as `ExcelReportGenerator.exe`
+
+### Distribution
+
+To distribute the application:
+1. Copy the `ExcelReportGenerator.exe` from the `dist` folder
+2. Share this single file with users - they can run it directly without installing Python or any dependencies
+
+Note: The first run might take a few seconds as the executable extracts its components. 

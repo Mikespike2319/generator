@@ -30,9 +30,15 @@ if errorlevel 1 (
 python --version
 echo ✅ Python found!
 
+REM Change to script directory
+echo.
+echo [2/5] Changing to script directory...
+cd /d "%~dp0"
+echo Current directory: %cd%
+
 REM Check if virtual environment already exists
 echo.
-echo [2/5] Setting up virtual environment...
+echo [3/5] Setting up virtual environment...
 if exist venv (
     echo ⚠️  Virtual environment already exists. Removing old version...
     rmdir /s /q venv
@@ -48,17 +54,17 @@ echo ✅ Virtual environment created!
 
 REM Activate virtual environment
 echo.
-echo [3/5] Activating virtual environment...
+echo [4/5] Activating virtual environment...
 call venv\Scripts\activate.bat
 
 REM Upgrade pip
 echo.
-echo [4/5] Upgrading pip...
+echo [5/5] Upgrading pip...
 python -m pip install --upgrade pip --quiet
 
 REM Install requirements
 echo.
-echo [5/5] Installing dependencies...
+echo [6/6] Installing dependencies...
 echo This may take a few minutes...
 pip install -r requirements.txt --quiet
 if errorlevel 1 (

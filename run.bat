@@ -16,6 +16,9 @@ if errorlevel 1 (
 echo Python found. Checking version...
 python --version
 
+REM Change to script directory
+cd /d "%~dp0"
+
 REM Create virtual environment if it doesn't exist
 if not exist venv (
     echo Creating virtual environment...
